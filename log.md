@@ -7,3 +7,7 @@
 - **00:45**: 在測試過程中發現 `seaborn` 的 colormap `white` 會引發錯誤，且 matplotlib 預設 backend 可能在無介面環境導致卡住。修正了 `cmap=ListedColormap(['white'])` 並設定 `matplotlib.use('Agg')`後測試成功，`gridworld_result.png` 順利產出。
 - **00:46**: 建立 `index.html`，完成 Demo Page 基本架構，將測試圖檔嵌入。
 - **00:47**: 準備進行 GitHub 版本控制與部署，將執行 `git init`, `git add .`, 和 `git commit`。
+- **00:50**: 成功在本地端初始化 Git 檔案庫並提交所有檔案（`main.py`, `log.md`, `index.html`, `requirements.txt`, `gridworld_result.png`）。但由於環境中缺少 GitHub CLI (`gh`)，無法自動建立遠端儲存庫。準備請使用者提供 Remote URL 或是手動在 GitHub 建立儲存庫。
+- **00:44**: 使用者希望先查看本地端的 Demo 網站。準備啟動 Python 內建的 HTTP 伺服器來提供預覽。
+- **00:54**: 收到追加任務，要求建立純前端（JavaScript + CSS）的互動式 Demo 網頁，覆蓋原先的靜態 `index.html`，並嚴格保持 `main.py` 及原圖檔不變。開始撰寫網頁。
+- **00:55**: 完成前端互動版 `index.html`，實作了網格渲染、Value Iteration 演算法 (JS)、以及單步執行/自動收斂/重置等控制按鈕。現在進行 Git 追蹤與提交。

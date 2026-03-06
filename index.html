@@ -1,51 +1,456 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HW1-2 策略顯示與價值評估</title>
+    <title>HW1-2 策略顯示與價值評估 (Interactive)</title>
     <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-color: #334155;
+            --grid-line: #cbd5e1;
+            --terminal-bg: #64748b;
+            --terminal-text: #ffffff;
+            --cell-bg: #ffffff;
+            --cell-hover: #f1f5f9;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --success-hover: #059669;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f9;
-            color: #333;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+
         .container {
             max-width: 900px;
-            margin: 0 auto;
+            width: 100%;
             background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            text-align: center;
         }
+
         h1 {
-            color: #2c3e50;
-            text-align: center;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
         }
-        p {
-            font-size: 1.1em;
-            text-align: center;
-            color: #555;
+
+        .description {
+            color: #64748b;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        .result-image {
-            display: block;
-            max-width: 100%;
-            height: auto;
-            margin: 30px auto;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-step {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-step:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-run {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-run:hover:not(:disabled) {
+            background-color: var(--success-hover);
+        }
+
+        .btn-reset {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-reset:hover:not(:disabled) {
+            background-color: var(--danger-hover);
+        }
+
+        .grid-container {
+            display: inline-grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            background-color: var(--grid-line);
+            border: 4px solid var(--grid-line);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .cell {
+            width: 80px;
+            height: 80px;
+            background-color: var(--cell-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+
+        .cell:hover {
+            background-color: var(--cell-hover);
+        }
+
+        .cell.terminal {
+            background-color: var(--terminal-bg);
+            color: var(--terminal-text);
+        }
+
+        .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .arrows {
+            position: absolute;
+            font-size: 1.2rem;
+            color: rgba(15, 23, 42, 0.4);
+            font-weight: bold;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .cell.terminal .arrows {
+            display: none;
+        }
+
+        .arrow-U {
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .arrow-D {
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .arrow-L {
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .arrow-R {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .stats {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f1f5f9;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #334155;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h1>HW1-2 策略顯示與價值評估</h1>
-        <p>這是一個經典的 7x7 Gridworld 強化學習作業實作。透過「價值迭代 (Value Iteration)」演算法，我們成功計算出每個狀態的收斂價值，並提取出最佳的貪婪策略 (Greedy Policy)。</p>
-        <p>環境參數：Step Reward = -1, Gamma = 0.9。終點狀態已標示為深灰色。</p>
-        <img src="gridworld_result.png" alt="Gridworld Result" class="result-image">
+        <h1>Gridworld 價值迭代</h1>
+        <p class="description">
+            經典 7x7 Gridworld 強化學習互動展示。體驗「價值迭代 (Value Iteration)」演算法如何找出最佳策略。<br>
+            設定：Step Reward = -1, Gamma = 0.9。深灰色為終點狀態。
+        </p>
+
+        <div class="controls">
+            <button id="btnStep" class="btn-step">Step (單步執行)</button>
+            <button id="btnRun" class="btn-run">Run to Convergence</button>
+            <button id="btnReset" class="btn-reset">Reset (重置)</button>
+        </div>
+
+        <div id="grid" class="grid-container"></div>
+
+        <div class="stats">
+            <div>Iteration: <span id="iterCount">0</span></div>
+            <div>Max Delta: <span id="maxDelta">0.0000</span></div>
+        </div>
     </div>
+
+    <script>
+        // Constants & Environment setup
+        const SIZE = 7;
+        const GAMMA = 0.9;
+        const REWARD = -1.0;
+        const THETA = 1e-4;
+        
+        const TERMINALS = [
+            {r: 0, c: 0},
+            {r: 0, c: 6},
+            {r: 6, c: 0},
+            {r: 6, c: 6},
+            {r: 3, c: 3}
+        ];
+
+        const ACTIONS = {
+            'U': {dr: -1, dc: 0, symbol: '↑'},
+            'D': {dr: 1, dc: 0, symbol: '↓'},
+            'L': {dr: 0, dc: -1, symbol: '←'},
+            'R': {dr: 0, dc: 1, symbol: '→'}
+        };
+
+        // State variables
+        let V = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
+        let policy = Array(SIZE).fill().map(() => Array(SIZE).fill([]));
+        let iteration = 0;
+        let isRunning = false;
+        let runInterval = null;
+
+        // DOM elements
+        const gridEl = document.getElementById('grid');
+        const iterCountEl = document.getElementById('iterCount');
+        const maxDeltaEl = document.getElementById('maxDelta');
+        const btnStep = document.getElementById('btnStep');
+        const btnRun = document.getElementById('btnRun');
+        const btnReset = document.getElementById('btnReset');
+
+        // Check if state is terminal
+        function isTerminal(r, c) {
+            return TERMINALS.some(t => t.r === r && t.c === c);
+        }
+
+        // Environment step function
+        function step(r, c, actionStr) {
+            if (isTerminal(r, c)) return {next_r: r, next_c: c, reward: 0};
+            
+            const a = ACTIONS[actionStr];
+            let next_r = r + a.dr;
+            let next_c = c + a.dc;
+
+            // Bump into wall
+            if (next_r < 0 || next_r >= SIZE || next_c < 0 || next_c >= SIZE) {
+                next_r = r;
+                next_c = c;
+            }
+
+            return {next_r, next_c, reward: REWARD};
+        }
+
+        // Update single value iteration sweep
+        function valueIterationStep() {
+            let delta = 0;
+            let newV = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
+
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    if (isTerminal(r, c)) {
+                        newV[r][c] = 0;
+                        continue;
+                    }
+
+                    let maxVal = -Infinity;
+                    for (const a in ACTIONS) {
+                        const {next_r, next_c, reward} = step(r, c, a);
+                        const val = reward + GAMMA * V[next_r][next_c];
+                        if (val > maxVal) maxVal = val;
+                    }
+
+                    delta = Math.max(delta, Math.abs(maxVal - V[r][c]));
+                    newV[r][c] = maxVal;
+                }
+            }
+
+            V = newV;
+            iteration++;
+            extractPolicy();
+            renderGrid();
+            
+            iterCountEl.textContent = iteration;
+            maxDeltaEl.textContent = delta.toFixed(4);
+
+            return delta;
+        }
+
+        // Extract greedy policy based on current V
+        function extractPolicy() {
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    if (isTerminal(r, c)) {
+                        policy[r][c] = [];
+                        continue;
+                    }
+
+                    let bestVal = -Infinity;
+                    let bestActions = [];
+
+                    for (const a in ACTIONS) {
+                        const {next_r, next_c, reward} = step(r, c, a);
+                        const val = reward + GAMMA * V[next_r][next_c];
+
+                        if (val > bestVal + 1e-8) {
+                            bestVal = val;
+                            bestActions = [a];
+                        } else if (Math.abs(val - bestVal) < 1e-8) {
+                            bestActions.push(a);
+                        }
+                    }
+                    policy[r][c] = bestActions;
+                }
+            }
+        }
+
+        // Initialize and render grid HTML
+        function initGrid() {
+            gridEl.innerHTML = '';
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    if (isTerminal(r, c)) cell.classList.add('terminal');
+                    cell.id = `cell-${r}-${c}`;
+                    
+                    const valueSpan = document.createElement('div');
+                    valueSpan.className = 'value';
+                    valueSpan.id = `val-${r}-${c}`;
+                    valueSpan.textContent = '0.00';
+                    
+                    const arrowsDiv = document.createElement('div');
+                    arrowsDiv.className = 'arrows';
+                    arrowsDiv.id = `arrows-${r}-${c}`;
+
+                    cell.appendChild(arrowsDiv);
+                    cell.appendChild(valueSpan);
+                    gridEl.appendChild(cell);
+                }
+            }
+            renderGrid();
+        }
+
+        // Update DOM with current V and policy
+        function renderGrid() {
+            for (let r = 0; r < SIZE; r++) {
+                for (let c = 0; c < SIZE; c++) {
+                    document.getElementById(`val-${r}-${c}`).textContent = V[r][c].toFixed(2);
+                    
+                    const arrowsDiv = document.getElementById(`arrows-${r}-${c}`);
+                    arrowsDiv.innerHTML = '';
+                    
+                    if (!isTerminal(r, c) && V[r][c] !== 0) {
+                        policy[r][c].forEach(a => {
+                            const arrSpan = document.createElement('span');
+                            arrSpan.className = `arrow-${a}`;
+                            arrSpan.textContent = ACTIONS[a].symbol;
+                            arrowsDiv.appendChild(arrSpan);
+                        });
+                    }
+                }
+            }
+        }
+
+        // Auto-run loop
+        function runToConvergence() {
+            if (isRunning) return;
+            isRunning = true;
+            btnStep.disabled = true;
+            btnRun.disabled = true;
+            btnRun.textContent = 'Running...';
+
+            runInterval = setInterval(() => {
+                const delta = valueIterationStep();
+                if (delta < THETA) {
+                    clearInterval(runInterval);
+                    isRunning = false;
+                    btnStep.disabled = false;
+                    btnRun.disabled = true; // Stay disabled after convergence
+                    btnRun.textContent = 'Converged';
+                }
+            }, 100);
+        }
+
+        // Reset system
+        function reset() {
+            if (runInterval) clearInterval(runInterval);
+            isRunning = false;
+            btnStep.disabled = false;
+            btnRun.disabled = false;
+            btnRun.textContent = 'Run to Convergence';
+            iteration = 0;
+            iterCountEl.textContent = '0';
+            maxDeltaEl.textContent = '0.0000';
+            
+            V = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
+            policy = Array(SIZE).fill().map(() => Array(SIZE).fill([]));
+            renderGrid();
+        }
+
+        // Event Listeners
+        btnStep.addEventListener('click', () => {
+            const delta = valueIterationStep();
+            if (delta < THETA) {
+                btnRun.disabled = true;
+                btnRun.textContent = 'Converged';
+            }
+        });
+        
+        btnRun.addEventListener('click', runToConvergence);
+        btnReset.addEventListener('click', reset);
+
+        // Bootstrap
+        initGrid();
+    </script>
 </body>
+
 </html>

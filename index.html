@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HW1-2 策略顯示與價值評估</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        p {
+            font-size: 1.1em;
+            text-align: center;
+            color: #555;
+        }
+        .result-image {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 30px auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HW1-2 策略顯示與價值評估</h1>
+        <p>這是一個經典的 7x7 Gridworld 強化學習作業實作。透過「價值迭代 (Value Iteration)」演算法，我們成功計算出每個狀態的收斂價值，並提取出最佳的貪婪策略 (Greedy Policy)。</p>
+        <p>環境參數：Step Reward = -1, Gamma = 0.9。終點狀態已標示為深灰色。</p>
+        <img src="gridworld_result.png" alt="Gridworld Result" class="result-image">
+    </div>
+</body>
+</html>

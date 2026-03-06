@@ -13,3 +13,4 @@
 - **00:55**: 完成前端互動版 `index.html`，實作了網格渲染、Value Iteration 演算法 (JS)、以及單步執行/自動收斂/重置等控制按鈕。現在進行 Git 追蹤與提交。
 - **01:05**: 撰寫 `README.md` 說明文件，並準備將專案推送到使用者的 GitHub Repository (`https://github.com/JodyYan/GridWorld1-2.git`) 的 `main` 與 `gh-pages` 分支。
 - **01:06**: 成功將專案推送至 GitHub 遠端儲存庫的 `main` 分支，並同步推送至 `gh-pages` 分支。任務圓滿完成。
+- **01:07**: 嘗試使用內建瀏覽器代理工具自動開啟 GitHub 設定頁面啟用 GitHub Pages，但遭遇瀏覽器環境限制無法順利開啟目標網頁，需要請使用者手動點擊啟用。
